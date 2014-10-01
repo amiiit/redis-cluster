@@ -1,0 +1,12 @@
+---
+- hosts: all
+  sudo: yes
+  tasks:
+  - name: set authorized key
+    authorized_key: user=vagrant key="{{ lookup('file', '/Users/amit/.ssh/id_rsa.pub') }}"
+  - name: install redis-server
+    apt: name=redis-server update_cache=yes
+  - name: configure redis
+    copy: src=files/redis.conf dest=/etc/redis/redis.conf
+  - name: restart redis-server
+    service: name=redis-server state=restarted

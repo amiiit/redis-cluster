@@ -1,1 +1,2 @@
 redis_home: /var/lib/redis
+redis_log_dir: /var/log/redis

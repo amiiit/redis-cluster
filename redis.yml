@@ -2,32 +2,40 @@
 - hosts: redis
   sudo: yes
   tasks:
+
   - name: set authorized key
     authorized_key: user=vagrant key="{{ lookup('file', '/Users/amit/.ssh/id_rsa.pub') }}"
-  - name: ensure github.com is a known host
-    lineinfile:
-      dest: /home/vagrant/.ssh/known_hosts
-      create: yes
-      state: present
-      line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
-      regexp: "^github\\.com"
-  - name: install git
-    apt: name=git-core
+
   - name: install unzip
     apt: name=unzip
+
   - name: download redis unstable code
     get_url: url="https://github.com/antirez/redis/archive/unstable.zip" dest="{{ ansible_env.HOME }}/redis-unstable.zip" 
+
   - name: unarchive redis
     unarchive: copy=no src="{{ ansible_env.HOME }}/redis-unstable.zip" dest="{{ ansible_env.HOME}}"
+
   - name: Install Redis
     command: creates="/usr/local/bin/redis-server" chdir="{{ ansible_env.HOME }}/redis-unstable" make install
+
   - name: Create user redis
-    user: name=redis system=yes home=/var/lib/redis shell=/bin/false
+    user: name=redis system=yes home=/var/lib/redis shell=/bin/bash
+
   - name: Copy redis config
     copy: src=files/redis.conf dest="{{ redis_home }}" owner=redis group=redis
     notify: Restart Redis
+
+  - name: Create directory for redis logs
+    file: path={{ redis_log_dir }} owner=redis group=redis mode=0774 state=directory
+
+  - name: touch redis log
+    file: path={{ redis_log_dir }}/redis-server.log owner=redis group=redis mode=0664 state=touch
+
   - name: Configure Upstart for Redis
     copy: src=files/redis_upstart.conf dest=/etc/init/redis.conf
+
+  - name: start redis
+    service: name=redis state=started
 
   handlers:
     - name: Restart Redis

@@ -5,9 +5,9 @@
 VAGRANTFILE_API_VERSION = "2"
 
 hosts = {
-  "host00" => "192.168.33.10",
-  "host01" => "192.168.33.11",
-  "host02" => "192.168.33.12"
+  "host0" => "192.168.33.10",
+  "host1" => "192.168.33.11",
+  "host2" => "192.168.33.12"
 }
 
 
@@ -15,8 +15,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     
   hosts.each do |name, ip|
       config.vm.define name do |machine|
-        machine.vm.box = "precise32"
-        machine.vm.hostname = "%s.example.org" % name
+        machine.vm.box = "ubuntu/trusty64"
+        machine.vm.hostname = "%s.me.dev" % name
         machine.vm.network :private_network, ip: ip
         machine.vm.provider "virtualbox" do |v|
             v.name = name

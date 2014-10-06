@@ -28,8 +28,14 @@
   - name: Create directory for redis logs
     file: path={{ redis_log_dir }} owner=redis group=redis mode=0774 state=directory
 
+  - name: Create directory for redis data
+    file: path={{ redis_data_dir }} owner=redis group=redis mode=0774 state=directory
+
   - name: touch redis log
     file: path={{ redis_log_dir }}/redis-server.log owner=redis group=redis mode=0664 state=touch
+
+  - name: touch append only file
+    file: path=/var/redis/appendonly.aof owner=redis group=redis mode=0770 state=touch
 
   - name: Configure Upstart for Redis
     copy: src=files/redis_upstart.conf dest=/etc/init/redis.conf
